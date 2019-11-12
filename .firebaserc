@@ -1,0 +1,24 @@
+{
+  "projects": {
+    "default": "posbackend-7b0d0"
+  },
+  "targets": {
+    "testing-account-6b4ba": {
+      "hosting": {
+        "disappgood": [
+          "disappgood"
+        ],
+        "testing": [
+          "testing-account-6b4ba"
+        ]
+      }
+    },
+    "posbackend-7b0d0": {
+      "hosting": {
+        "relllo": [
+          "relllo"
+        ]
+      }
+    }
+  }
+}
