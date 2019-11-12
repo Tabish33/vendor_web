@@ -141,7 +141,7 @@ hr {
 .card {
   border-radius: 8px !important;
   /* box-shadow: 1px 1px 8px lightgrey !important; */
-  box-shadow: 1px 10px 23px lightgrey !important;
+  box-shadow: 1px 4px 2px lightgrey !important;
 }
 
 .bold {
