@@ -1,7 +1,7 @@
 <template>
     <v-layout fill-height column>
-        <v-flex shrink style="height:132px;">
-            <v-layout style="position:fixed;width:100%;z-index:10" column>
+        <v-flex shrink>
+            <v-layout column>
                 <v-card flat>
                 <v-flex shrink class="x_large bold mt-4">Orders</v-flex>
                 <hr class="mt-3 mb-2">

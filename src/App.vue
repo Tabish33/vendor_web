@@ -139,9 +139,9 @@ hr {
 }
 
 .card {
-  border-radius: 8px !important;
+  border-radius: 16px !important;
   /* box-shadow: 1px 1px 8px lightgrey !important; */
-  box-shadow: 1px 4px 2px lightgrey !important;
+  box-shadow: 1px 7px 15px lightgrey !important;
 }
 
 .bold {

@@ -1,7 +1,7 @@
 <template>
     <v-layout fill-height column>
-        <v-flex shrink style="height:132px;">
-            <v-layout style="position:fixed;width:100%;z-index:10" column>
+        <v-flex shrink >
+            <v-layout column>
                 <v-card flat>
                 <v-flex shrink class="x_large bold mt-4">Completed Orders</v-flex>
                 <hr class="mt-3 mb-2">
@@ -32,6 +32,7 @@
 import firebase from "firebase"
 import { storeDb } from '../firebase/init'
 import OrderCard from "./OrderCard"
+import {bus} from "../../main"
 
 export default {
     components: {
@@ -51,13 +52,14 @@ export default {
     },
 
     methods:{
-        getCompletedOrders(){
-            storeDb.collection("vendor_orders")
-            .where("status","==","completed")
-            .onSnapshot( querySnap => {
-                querySnap.forEach(doc=>{
-                    this.orders.push(doc.data())
-                })
+       async getCompletedOrders(){
+            let orders_snap = await storeDb.collection("vendor_orders")
+                                    .where("status","==","completed")
+                                    .get()
+
+            orders_snap.forEach(doc=>{
+                let order = doc.data();
+                this.orders.push(order);
             })
         },
 
