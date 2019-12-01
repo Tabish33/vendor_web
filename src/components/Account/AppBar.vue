@@ -16,7 +16,8 @@ export default {
         return {
             selected_index: 0,
             items: [
-                { icon: "home", title: "Dashboard"},
+                { icon: "home", title: "Pending Orders"},
+                {icon: "local_shipping", title: "Out For Delivery"},
                 {icon: "refresh", title: "Previous Orders"},
                 {icon: "fastfood", title: "Inventory"},
                 
