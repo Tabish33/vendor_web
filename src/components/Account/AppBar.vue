@@ -20,7 +20,8 @@ export default {
                 {icon: "local_shipping", title: "Out For Delivery"},
                 {icon: "refresh", title: "Previous Orders"},
                 {icon: "fastfood", title: "Inventory"},
-                
+                {icon: "notifications", title: "Notifications"},
+                {icon: "notifications", title: "Offers"},
             ]
         }
     },

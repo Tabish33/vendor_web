@@ -7,7 +7,9 @@
             <dashboard v-if="selected_index == 0" ></dashboard>
             <out-for-delivery v-else-if="selected_index == 1"></out-for-delivery>
             <previous-orders v-else-if="selected_index == 2" ></previous-orders>
-            <inventory v-else ></inventory>
+            <inventory v-else-if="selected_index == 3"></inventory>
+            <notifications v-else-if="selected_index == 4"></notifications>
+            <offers v-else-if="selected_index == 5"></offers>
         </v-flex>
     </v-layout>    
 </template>
@@ -18,6 +20,8 @@ import DashBoard from "./DashBoard"
 import PreviousOrders from "./PreviousOrders"
 import OutForDelivery from "./OutForDelivery"
 import Inventory from "./Inventory"
+import Notifications from "./Notifications"
+import Offers from "./Offers"
 
 export default {
     components:{
@@ -25,7 +29,9 @@ export default {
         "dashboard": DashBoard,
         "out-for-delivery": OutForDelivery,
         "previous-orders":PreviousOrders,
-        "inventory": Inventory
+        "inventory": Inventory,
+        "notifications": Notifications,
+        "offers" : Offers
     },
 
     data(){

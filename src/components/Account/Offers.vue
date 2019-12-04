@@ -1,0 +1,126 @@
+<template>
+    <v-layout fill-height column>
+        <v-flex shrink>
+            <v-layout column>
+                <v-card flat>
+                    <v-flex>
+                        <v-layout>
+                            <v-flex class="x_large bold mt-4">Offers</v-flex>
+                            <v-flex class="" shrink>
+                                 <v-btn @click="show_offers_dialog=true" dark color="rgb(0, 133, 119)" class="capitalize bold">Create Offer<v-icon></v-icon></v-btn>
+                            </v-flex>
+                        </v-layout>
+                    </v-flex>
+                    <hr class="mt-3 mb-2">
+                </v-card>
+            </v-layout>
+        </v-flex>
+        <v-flex class="mt-2">
+            <v-layout wrap>
+                <v-flex md4 class="mt-2 pa-2" shrink v-for="(offer,i) in offers" :key="i">
+                    <v-card class="pa-4 card" >
+                        <v-layout column>
+                            <v-flex class="mb-1">
+                                <v-layout>
+                                    <v-flex style="align-self:center" class="bold large">{{offer.details.title}}</v-flex>
+                                    <v-flex shrink>
+                                        <v-icon color="rgb(0, 133, 119)" @click="showEditOfferDialog(offer,i)">edit</v-icon>
+                                    </v-flex>
+                                </v-layout>
+                            </v-flex>
+                            <v-flex class="bold">{{offer.details.subtitle}}</v-flex>
+                            <v-flex class="bold mb-2" style="color:green">{{offer.details.type}}</v-flex>
+                            <v-flex>
+                                <v-layout wrap>
+                                    <v-flex shrink v-for="(item,j) in offer.items" :key="j" >
+                                        <v-chip dark class="bold" color="warning">{{item.name}}</v-chip>
+                                    </v-flex>
+                                </v-layout>
+                            </v-flex>
+                        </v-layout>
+                    </v-card>
+                </v-flex>
+            </v-layout>
+        </v-flex>
+        <!-- DIALOGS -->
+        <v-flex v-show="false">
+            <v-dialog width="400" v-model="show_offers_dialog">
+                <create-offer @offerCreated="show_offers_dialog=false"></create-offer>
+            </v-dialog>
+
+            <v-dialog width="400" v-model="edit_offer_dialog">
+                <edit-offer :Offer="selected_offer" @offerEdited="editOffer($event)"></edit-offer>
+            </v-dialog>
+        </v-flex>
+    </v-layout>
+</template>
+
+<script>
+import firebase from "firebase"
+import { storeDb } from '../firebase/init'
+const CreateOffer = () => import("./CreateOffer")
+const EditOffer = () => import("./EditOffer")
+export default {
+    components: {
+        "create-offer": CreateOffer,
+        "edit-offer": EditOffer
+    },
+
+    data(){
+        return {
+            offers: [],
+            show_offers_dialog: false,
+            edit_offer_dialog: false,
+            selected_offer: null,
+            selected_offer_index: null
+        }
+    },
+
+    methods:{
+        async getOffers(){
+            let offers_snap = await storeDb.collection("offers").get()
+            let offers = []
+
+            offers_snap.forEach(doc=> {
+                let offer  = doc.data()
+                offer.id = doc.id;
+                offers.push(offer)
+            })
+            
+            
+            for (let i = 0; i < offers.length; i++) {
+                let new_offer = { items: []}
+                let id = offers[i].id;
+                let offer = offers[i];
+                let ref = `offers/${id}/items`
+                let items_snap = await storeDb.collection(ref).get()
+
+                new_offer.details = offer;
+                items_snap.forEach(doc=>{
+                    new_offer.items.push(doc.data())
+                })
+
+                this.offers.push(new_offer)
+
+            }
+        },
+
+        showEditOfferDialog(offer,index){
+            this.selected_offer= offer
+            this.selected_offer_index = index
+            this.edit_offer_dialog = true
+        },
+
+        editOffer(offer){
+            this.offers.splice(this.selected_offer_index,1, offer);
+            this.selected_offer= null
+            this.selected_offer_index = null
+            this.edit_offer_dialog = false
+        }
+    },
+
+    created(){
+        this.getOffers()
+    }
+}
+</script>

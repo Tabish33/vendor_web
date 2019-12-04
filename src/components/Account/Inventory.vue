@@ -3,7 +3,14 @@
         <v-flex shrink>
             <v-layout column>
                 <v-card flat>
-                    <v-flex shrink class="x_large bold mt-4">Inventory</v-flex>
+                    <v-flex>
+                        <v-layout>
+                            <v-flex class="x_large bold mt-4">inventory</v-flex>
+                            <v-flex class="" shrink>
+                                 <v-btn @click="show_offers_dialog=true" dark color="rgb(0, 133, 119)" class="capitalize bold">Create Offer<v-icon></v-icon></v-btn>
+                            </v-flex>
+                        </v-layout>
+                    </v-flex>
                     <hr class="mt-3 mb-2">
                 </v-card>
             </v-layout>
@@ -33,10 +40,20 @@
                 </v-flex>
             </v-layout>
         </v-flex>
+        <!-- ADD ITEM -->
+        <v-flex style="position:fixed;right:15px;bottom:15px;z-index:30">
+            <v-btn @click="add_product_dialog = true" large fab dark color="warning">
+                <v-icon dark>add</v-icon>
+            </v-btn>
+        </v-flex>
         <!-- DIALOGS -->
         <v-flex v-show="false">
             <v-dialog width="400" v-model="edit_product_dialog">
                 <edit-product :product="selected_product" :dialog="edit_product_dialog" v-on:editProduct="editProduct($event)"></edit-product>
+            </v-dialog>
+
+            <v-dialog width="400" v-model="add_product_dialog">
+                <add-product v-on:addProduct="addProduct($event)" ></add-product>
             </v-dialog>
         </v-flex>
     </v-layout>
@@ -46,17 +63,24 @@
 import firebase from "firebase"
 import { storeDb } from '../firebase/init'
 const EditProduct = () => import("./EditProduct")
+const AddProduct = () => import("./AddProduct")
+const CreateOffer = () => import("./CreateOffer")
+
 
 export default {
     components:{
-        "edit-product": EditProduct
+        "edit-product": EditProduct,
+        "add-product": AddProduct,
+        "offers": CreateOffer
     },
 
     data(){
         return {
             inventory: [],
             selected_product: null,
-            edit_product_dialog: false
+            edit_product_dialog: false,
+            add_product_dialog: false,
+            show_offers_dialog: false
         }
     },
 
@@ -87,6 +111,11 @@ export default {
             }
 
             this.edit_product_dialog  = false
+        },
+        
+        addProduct(new_product){
+            this.inventory.splice(0, 0, new_product);
+            this.add_product_dialog = false
         }
     },
 

@@ -5,13 +5,30 @@
             <hr class="mt-3 mb-2">
 
             <v-flex><v-text-field label="Name" v-model="edited_product.name"></v-text-field></v-flex>
-            <v-flex><v-select :items="catg_units" v-model="edited_product.category" label="Category"></v-select></v-flex>
+            <v-flex><v-select :items="getCatgs" v-model="edited_product.category" label="Category"></v-select></v-flex>
+            <v-flex ><v-autocomplete :items="vendors"  item-text="name" return-object v-model="edited_product.vendor" label="Vendor"></v-autocomplete></v-flex>
             <v-flex>
                 <v-layout row>
-                    <v-flex><v-text-field label="Rate" v-model="edited_product.price_per_qty"></v-text-field></v-flex>
+                    <v-flex><v-text-field label="Our Rate" v-model="edited_product.price_per_qty"></v-text-field></v-flex>
                     <v-flex>/</v-flex>
                     <v-flex><v-text-field label="Qty" v-model="edited_product.per"></v-text-field></v-flex>
-                    <v-flex><v-select :items="units" v-model="edited_product.unit" label="Unit"></v-select></v-flex>
+                    <v-flex><v-select :items="getUnits" v-model="edited_product.unit" label="Unit"></v-select></v-flex>
+                </v-layout>
+            </v-flex>
+            <v-flex>
+                <v-layout row>
+                    <v-flex><v-text-field label="Vendor Rate" v-model="new_product.vendor_price_per_qty"></v-text-field></v-flex>
+                    <v-flex>/</v-flex>
+                    <v-flex><v-text-field label="Qty" v-model="new_product.vendor_per"></v-text-field></v-flex>
+                    <v-flex><v-select :items="getUnits" v-model="new_product.vendor_unit" label="Unit"></v-select></v-flex>
+                </v-layout>
+            </v-flex>
+            <v-flex>
+                <v-layout row>
+                    <v-flex><v-text-field label="Market Rate" v-model="new_product.market_price_per_qty"></v-text-field></v-flex>
+                    <v-flex>/</v-flex>
+                    <v-flex><v-text-field label="Qty" v-model="new_product.market_per"></v-text-field></v-flex>
+                    <v-flex><v-select :items="getUnits" v-model="new_product.market_unit" label="Unit"></v-select></v-flex>
                 </v-layout>
             </v-flex>
             <v-flex><v-textarea label="Description" v-model="edited_product.desc"></v-textarea></v-flex>
@@ -31,7 +48,22 @@ export default {
         return{
             edited_product:null,
             units: ["KG", "GM", "L","ML", "Pc"],
-            catg_units: ["VEG","NONVEG"]
+            catg_units: ["VEG","NONVEG"],
+            vendors: []
+        }
+    },
+    
+    computed: {
+        getCatgs(){
+            return this.$store.getters.getCategories
+        },
+
+        getUnits(){
+            return this.$store.getters.getUnits
+        },
+
+        getType(){
+            return this.$store.getters.getType
         }
     },
 
@@ -45,6 +77,10 @@ export default {
         correctFields(){
             this.edited_product.price_per_qty = parseFloat(this.edited_product.price_per_qty)
             this.edited_product.per = parseFloat(this.edited_product.per)
+            this.edited_product.market_price_per_qty = parseFloat(this.edited_product.market_price_per_qty)
+            this.edited_product.market_per = parseFloat(this.edited_product.market_per)
+            this.edited_product.vendor_price_per_qty = parseFloat(this.edited_product.vendor_price_per_qty)
+            this.edited_product.vendor_per = parseFloat(this.edited_product.vendor_per)
         },
 
         async updateOnBackend(){
@@ -52,6 +88,18 @@ export default {
             let ref = `Vendors/${uid}/products`
             await storeDb.collection(ref).doc(this.edited_product.id.toString())
             .update(this.edited_product)
+        },
+
+        async getVendors(){
+            let vendors_snap = await storeDb.collection("Vendors").get()
+            let vendors = []
+            vendors_snap.forEach(doc=>{
+                let vendor = doc.data();
+                vendor.uid  = doc.id;
+                vendors.push(vendor);
+            })
+            
+            this.vendors = vendors
         }
     },
 
@@ -63,6 +111,10 @@ export default {
                 
             }
         }
+    },
+
+    created(){
+        this.getVendors()
     }
 }
 </script>
