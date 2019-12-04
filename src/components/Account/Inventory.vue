@@ -28,6 +28,7 @@
                                             <v-flex shrink style="color:grey">{{product.name}}</v-flex>
                                             <v-spacer></v-spacer>
                                             <v-flex @click="showEditProductDialog(product)" class="pointer" shrink><v-icon color="rgb(0, 133, 119)">edit</v-icon></v-flex>
+                                            <v-flex @click="showDeleteProductDialog(product)" class="pointer" shrink><v-icon color="warning">delete</v-icon></v-flex>
                                         </v-layout>
                                     </v-flex>
                                     <v-flex style="color:grey">{{product.category}}</v-flex>
@@ -55,6 +56,21 @@
             <v-dialog width="400" v-model="add_product_dialog">
                 <add-product v-on:addProduct="addProduct($event)" ></add-product>
             </v-dialog>
+
+            <v-dialog v-model="confirm_deletion_dialog" width="400">
+                <v-card class="pa-4 card">
+                    <v-flex shrink class="x_large bold">Delete Item<v-icon>delete</v-icon> </v-flex>
+                    <hr class="mt-3 mb-2">
+                    <v-flex class="bold mt-2 mb-2" style="color:grey">Are you sure you want to delete this item?</v-flex>
+                    <v-flex>
+                        <v-layout>
+                            <v-spacer></v-spacer>
+                            <v-flex shrink><v-btn @click="deleteOrder()" dark color="rgb(0, 133, 119)">Yes</v-btn></v-flex>
+                            <v-flex shrink><v-btn @click="confirm_deletion_dialog= false" dark color="warning">No</v-btn></v-flex>
+                        </v-layout>
+                    </v-flex>
+                </v-card>
+            </v-dialog>
         </v-flex>
     </v-layout>
 </template>
@@ -80,7 +96,8 @@ export default {
             selected_product: null,
             edit_product_dialog: false,
             add_product_dialog: false,
-            show_offers_dialog: false
+            show_offers_dialog: false,
+            confirm_deletion_dialog: false
         }
     },
 
@@ -101,6 +118,26 @@ export default {
             this.edit_product_dialog = true
         },
 
+        showDeleteProductDialog(product){
+            this.selected_product = product
+            this.confirm_deletion_dialog = true
+        },
+
+        async deleteOrder(){
+            let order = this.selected_product
+            
+            await storeDb.collection("Vendors/ZNtVs6nMyeMn2CbEdy6vB1riZ4s1/products").doc(order.id.toString()).delete()
+            for (let i = 0; i < this.inventory.length; i++) {
+                let product = this.inventory[i];
+                if (product.id == order.id) {
+                    this.inventory.splice(i, 1)
+                    break;
+                }    
+            }
+
+            this.confirm_deletion_dialog = false
+        },
+
         editProduct(edited_product){
             for (let i = 0; i < this.inventory.length; i++) {
                 let product = this.inventory[i];
@@ -109,7 +146,6 @@ export default {
                     break;
                 }    
             }
-
             this.edit_product_dialog  = false
         },
         

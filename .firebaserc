@@ -17,6 +17,9 @@
       "hosting": {
         "relllo": [
           "relllo"
+        ],
+        "mandimanager": [
+          "mandimanager"
         ]
       }
     }

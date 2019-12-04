@@ -32,7 +32,14 @@
                 </v-layout>
             </v-flex>
             <v-flex>
-                <img :src="new_product.image_url" />
+                <v-combobox v-model="new_product.search_terms"  :items="new_product.search_terms" label="Search Terms" chips clearable solo multiple>
+                    <v-chips v-for="(term,index) in new_product.search_terms" :key="index" >
+                        {{term}}
+                    </v-chips>
+                </v-combobox>
+            </v-flex>
+            <v-flex>
+                <img width="350px" :src="new_product.image_url" />
                 <upload-btn block outline @file-update="saveLogo" label="Choose Image">Choose Image</upload-btn>
             </v-flex>
             <v-flex><v-textarea label="Description" v-model="new_product.desc"></v-textarea></v-flex>
@@ -54,7 +61,7 @@ export default {
 
     data(){
         return{
-            new_product: { vendor:{}},
+            new_product: { vendor:{}, search_terms:[]},
             image: null,
             vendors: []
         }
@@ -76,6 +83,7 @@ export default {
 
     methods: {
         async save(){
+            console.log(this.new_product);  
             this.correctFields();
             await this.saveOnBackend();  
             this.$emit("addProduct", this.deepCopy(this.new_product)) 

@@ -16,7 +16,7 @@
     },
 
     {
-      "target": "testing",
+      "target": "mandimanager",
       "public": "dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [

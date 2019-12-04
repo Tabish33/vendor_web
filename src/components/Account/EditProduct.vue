@@ -17,19 +17,30 @@
             </v-flex>
             <v-flex>
                 <v-layout row>
-                    <v-flex><v-text-field label="Vendor Rate" v-model="new_product.vendor_price_per_qty"></v-text-field></v-flex>
+                    <v-flex><v-text-field label="Vendor Rate" v-model="edited_product.vendor_price_per_qty"></v-text-field></v-flex>
                     <v-flex>/</v-flex>
-                    <v-flex><v-text-field label="Qty" v-model="new_product.vendor_per"></v-text-field></v-flex>
-                    <v-flex><v-select :items="getUnits" v-model="new_product.vendor_unit" label="Unit"></v-select></v-flex>
+                    <v-flex><v-text-field label="Qty" v-model="edited_product.vendor_per"></v-text-field></v-flex>
+                    <v-flex><v-select :items="getUnits" v-model="edited_product.vendor_unit" label="Unit"></v-select></v-flex>
                 </v-layout>
             </v-flex>
             <v-flex>
                 <v-layout row>
-                    <v-flex><v-text-field label="Market Rate" v-model="new_product.market_price_per_qty"></v-text-field></v-flex>
+                    <v-flex><v-text-field label="Market Rate" v-model="edited_product.market_price_per_qty"></v-text-field></v-flex>
                     <v-flex>/</v-flex>
-                    <v-flex><v-text-field label="Qty" v-model="new_product.market_per"></v-text-field></v-flex>
-                    <v-flex><v-select :items="getUnits" v-model="new_product.market_unit" label="Unit"></v-select></v-flex>
+                    <v-flex><v-text-field label="Qty" v-model="edited_product.market_per"></v-text-field></v-flex>
+                    <v-flex><v-select :items="getUnits" v-model="edited_product.market_unit" label="Unit"></v-select></v-flex>
                 </v-layout>
+            </v-flex>
+            <v-flex>
+                <v-combobox v-model="edited_product.search_terms"  :items="edited_product.search_terms" label="Search Terms" chips clearable solo multiple>
+                    <v-chips v-for="(term,index) in edited_product.search_terms" :key="index" >
+                        {{term}}
+                    </v-chips>
+                </v-combobox>
+            </v-flex>
+            <v-flex>
+                <img width="350px" :src="edited_product.image_url" />
+                <upload-btn block outline @file-update="saveLogo" label="Choose Image">Choose Image</upload-btn>
             </v-flex>
             <v-flex><v-textarea label="Description" v-model="edited_product.desc"></v-textarea></v-flex>
             <v-flex><v-btn @click="save()" dark block color="rgb(0, 133, 119)" class="capitalize bold">Save</v-btn></v-flex>
@@ -40,8 +51,13 @@
 <script>
 import firebase from "firebase"
 import { storeDb } from '../firebase/init'
+import UploadButton from "vuetify-upload-button";
 
 export default {
+    components: {
+        "upload-btn": UploadButton
+    },
+
     props : ["product","dialog"],
 
     data(){
@@ -49,6 +65,7 @@ export default {
             edited_product:null,
             units: ["KG", "GM", "L","ML", "Pc"],
             catg_units: ["VEG","NONVEG"],
+            image: null,
             vendors: []
         }
     },
@@ -74,6 +91,18 @@ export default {
             this.$emit("editProduct", this.edited_product)     
         },
 
+        saveLogo(file){
+            this.image = file
+        },
+
+        async uploadImage(){
+            let file = this.image
+            let logo_ref = firebase.storage().ref(`vendor_prouct_images/${this.edited_product.id}`);
+            let snap = await logo_ref.put(file);
+            this.edited_product.image_url = await snap.ref.getDownloadURL()
+        },
+
+
         correctFields(){
             this.edited_product.price_per_qty = parseFloat(this.edited_product.price_per_qty)
             this.edited_product.per = parseFloat(this.edited_product.per)
@@ -84,6 +113,7 @@ export default {
         },
 
         async updateOnBackend(){
+            await this.uploadImage();
             let uid = await firebase.auth().currentUser.uid;
             let ref = `Vendors/${uid}/products`
             await storeDb.collection(ref).doc(this.edited_product.id.toString())
