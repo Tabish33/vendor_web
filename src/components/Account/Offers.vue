@@ -22,7 +22,11 @@
                         <v-layout column>
                             <v-flex class="mb-1">
                                 <v-layout>
-                                    <v-flex style="align-self:center" class="bold large">{{offer.details.title}}</v-flex>
+                                    <v-flex shrink style="align-self:center" class="bold large">{{offer.details.title}}</v-flex>
+                                    <v-flex class="ml-3" v-if="offer.details.active" >
+                                        <span class="bold pa-1" style="background:green;border-radius:4px;color:white">Active</span>
+                                    </v-flex>
+                                    <v-spacer></v-spacer>
                                     <v-flex shrink>
                                         <v-icon color="rgb(0, 133, 119)" @click="showEditOfferDialog(offer,i)">edit</v-icon>
                                     </v-flex>
@@ -45,7 +49,7 @@
         <!-- DIALOGS -->
         <v-flex v-show="false">
             <v-dialog width="400" v-model="show_offers_dialog">
-                <create-offer @offerCreated="show_offers_dialog=false"></create-offer>
+                <create-offer @offerCreated="addOffer($event)"></create-offer>
             </v-dialog>
 
             <v-dialog width="400" v-model="edit_offer_dialog">
@@ -116,6 +120,11 @@ export default {
             this.selected_offer= null
             this.selected_offer_index = null
             this.edit_offer_dialog = false
+        },
+
+        addOffer(offer){
+            this.offers.splice(0,0, offer)
+            this.show_offers_dialog=false
         }
     },
 

@@ -44,6 +44,10 @@
             </v-flex>
             <v-flex><v-textarea label="Description" v-model="new_product.desc"></v-textarea></v-flex>
             <v-flex><v-btn @click="save()" dark block color="rgb(0, 133, 119)" class="capitalize bold">Save</v-btn></v-flex>
+
+            <v-flex v-show="false">
+                <loading :dialog="loading_dialog"></loading>
+            </v-flex>
         </v-layout>
     </v-card>
 </template>
@@ -53,17 +57,20 @@ import UploadButton from "vuetify-upload-button";
 import firebase from "firebase"
 import { storeDb } from '../firebase/init'
 import moment from "moment"
+import Loading from "./Loading"
 
 export default {
     components: {
-        "upload-btn": UploadButton
+        "upload-btn": UploadButton,
+        "loading": Loading
     },
 
     data(){
         return{
             new_product: { vendor:{}, search_terms:[]},
             image: null,
-            vendors: []
+            vendors: [],
+            loading_dialog: false
         }
     },
 
@@ -114,6 +121,8 @@ export default {
         },  
 
         async saveOnBackend(){
+            this.loading_dialog = true
+
             await this.uploadImage()
             console.log(this.new_product);
             
@@ -124,6 +133,8 @@ export default {
 
             let vendor_ref = `Vendors/${this.new_product.vendor.uid}/products`
             await storeDb.collection(vendor_ref).doc(this.new_product.id.toString()).set(this.new_product)
+
+            this.loading_dialog = false
         },
 
         async uploadImage(){

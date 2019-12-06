@@ -69,6 +69,12 @@
                 <v-card class="pa-4">
                     <v-layout column>
                         <v-flex>
+                            <v-autocomplete item-text="name" return-object :items="restaurants" label="Select Restaurant" v-model="selected_res"></v-autocomplete>
+                        </v-flex>
+                         <v-flex v-if="selected_res">
+                            <v-autocomplete item-text="name" item-value="name" :items="branches" label="Select Branch" v-model="selected_branch"></v-autocomplete>
+                        </v-flex>
+                        <v-flex>
                             <v-text-field label="Title" v-model="notf.title"></v-text-field>
                         </v-flex>
                         <v-flex>
@@ -86,6 +92,8 @@
                     </v-layout>
                 </v-card>
             </v-dialog>
+
+            <loading :dialog="loading_dialog"></loading>
         </v-flex>
     </v-layout>
 </template>
@@ -95,9 +103,12 @@ import UploadButton from "vuetify-upload-button";
 import { storeDb } from '../firebase/init'
 import firebase from "firebase"
 import moment from "moment"
+import Loading from "./Loading"
+
 export default {
     components: {
-        "upload-btn": UploadButton
+        "upload-btn": UploadButton,
+        "loading": Loading
     },
     
     data(){
@@ -110,7 +121,7 @@ export default {
             selected_res: null,
             selected_branch: null,
             image: null,
-
+            loading_dialog:false,
             notf: {}
         }
     },
@@ -168,6 +179,8 @@ export default {
         },
 
       async sendNotification(){
+        this.loading_dialog =true
+        
         await this.uploadImage()
         let uid = this.selected_res.uid
         let branch = this.selected_branch
@@ -180,7 +193,8 @@ export default {
             .httpsCallable("sendBestDeals");
 
          sendBestDeals({ uid, branch, data: this.notf });
-
+         
+         this.loading_dialog = false
          this.show_notifications_dialog = false
       }
     },

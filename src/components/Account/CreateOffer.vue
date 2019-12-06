@@ -2,6 +2,9 @@
     <v-card class="pa-4 card">
         <v-layout column>
             <v-flex>
+                 <v-flex shrink><v-switch v-model="offer.active" color="rgb(0, 133, 119)"></v-switch></v-flex>
+            </v-flex>
+            <v-flex>
                 <v-text-field label="Title" v-model="offer.title"></v-text-field>
             </v-flex>
             <v-flex>
@@ -14,9 +17,17 @@
                 <v-autocomplete item-text="name" multiple :items="products" return-object label="Items" v-model="items"></v-autocomplete>
             </v-flex>
             <v-flex>
+                <img width="350px" :src="offer.image_url" />
+                <upload-btn block outline @file-update="saveLogo" label="Choose Image">Choose Image</upload-btn>
+            </v-flex>
+            <v-flex>
                 <v-btn @click="createOffer()" block dark color="rgb(0, 133, 119)" class="capitalize bold">
                     Create Offer
                 </v-btn>
+            </v-flex>
+
+            <v-flex v-show="false">
+                <loading :dialog="loading_dialog"></loading>
             </v-flex>
         </v-layout>
     </v-card>
@@ -26,20 +37,33 @@
 import firebase from "firebase"
 import { storeDb } from '../firebase/init'
 import moment from "moment"
+import Loading from "./Loading"
+import UploadButton from "vuetify-upload-button";
 export default {
+    components:{
+        "loading": Loading,
+        "upload-btn": UploadButton,
+    },
 
     data(){
         return {
             offer : { offer_type: "vendor"},
             items: [],
-            products: []
+            products: [],
+            loading_dialog: false,
+            image:null
         }
     },
 
     methods: {
         async createOffer(){
-            let id = moment().valueOf()
+            this.loading_dialog = true
+
+            let id = moment().valueOf().toString();
+            this.offer.id = id;
             let ref = `offers`
+
+            await this.uploadImage()
 
             for (let i = 0; i < this.items.length; i++) {
                 const item = this.items[i];
@@ -47,14 +71,43 @@ export default {
             }
 
             await storeDb.collection(ref).doc(id.toString()).set(this.offer)
-
+            
+            let offer = {}
+            offer.details  = this.offer;
+            offer.items = this.items
+            this.$emit("offerCreated",  this.deepCopy(offer))
+            this.sendOfferNotification()
             this.resetData()
-            this.$emit("offerCreated")
+            this.loading_dialog = false
+        },
+
+        sendOfferNotification(){
+            let offer = this.deepCopy(this.offer)
+            var sendOfferNotification = firebase
+            .functions()
+            .httpsCallable("sendOfferNotification");
+
+            sendOfferNotification({ offer });
+        },
+
+        saveLogo(file){
+            this.image = file
+        },
+        
+        async uploadImage(){
+            let file = this.image
+            let logo_ref = firebase.storage().ref(`vendor_offers/${this.offer.id}`);
+            let snap = await logo_ref.put(file);
+            this.offer.image_url = await snap.ref.getDownloadURL()
         },
 
         resetData(){
             this.offer = { offer_type: "vendor"}
             this.items = []
+        },
+
+        deepCopy(obj){
+            return JSON.parse(JSON.stringify(obj))
         },
 
         async getInventory(){

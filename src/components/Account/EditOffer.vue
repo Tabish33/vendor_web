@@ -21,6 +21,10 @@
                     Create Offer
                 </v-btn>
             </v-flex>
+
+            <v-flex v-show="false">
+                <loading :dialog="loading_dialog"></loading>
+            </v-flex>
         </v-layout>
     </v-card>
 </template>
@@ -29,19 +33,27 @@
 import firebase from "firebase"
 import { storeDb } from '../firebase/init'
 import moment from "moment"
+import Loading from "./Loading"
 export default {
     props: ["Offer"],
+
+    components: {
+        "loading": Loading
+    },
 
     data(){
         return {
             offer: {},
             items: [],
-            products: []
+            products: [],
+            loading_dialog: false
         }
     },
 
     methods: {
         async createOffer(){
+            this.loading_dialog = true
+
             let offer_id = this.offer.id
             let ref = `offers`
 
@@ -54,6 +66,8 @@ export default {
 
             this.$emit("offerEdited",{items: this.items, details: this.offer})
             this.resetData()
+            
+            this.loading_dialog = false    
         },
 
         async removeDeletedItems(offer_id){

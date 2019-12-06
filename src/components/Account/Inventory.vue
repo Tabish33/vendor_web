@@ -5,10 +5,7 @@
                 <v-card flat>
                     <v-flex>
                         <v-layout>
-                            <v-flex class="x_large bold mt-4">inventory</v-flex>
-                            <v-flex class="" shrink>
-                                 <v-btn @click="show_offers_dialog=true" dark color="rgb(0, 133, 119)" class="capitalize bold">Create Offer<v-icon></v-icon></v-btn>
-                            </v-flex>
+                            <v-flex class="x_large bold mt-4">Inventory</v-flex>
                         </v-layout>
                     </v-flex>
                     <hr class="mt-3 mb-2">
@@ -71,6 +68,8 @@
                     </v-flex>
                 </v-card>
             </v-dialog>
+
+            <loading :dialog="loading_dialog"></loading>
         </v-flex>
     </v-layout>
 </template>
@@ -81,13 +80,15 @@ import { storeDb } from '../firebase/init'
 const EditProduct = () => import("./EditProduct")
 const AddProduct = () => import("./AddProduct")
 const CreateOffer = () => import("./CreateOffer")
+import Loading from "./Loading"
 
 
 export default {
     components:{
         "edit-product": EditProduct,
         "add-product": AddProduct,
-        "offers": CreateOffer
+        "offers": CreateOffer,
+        "loading": Loading
     },
 
     data(){
@@ -97,7 +98,8 @@ export default {
             edit_product_dialog: false,
             add_product_dialog: false,
             show_offers_dialog: false,
-            confirm_deletion_dialog: false
+            confirm_deletion_dialog: false,
+            loading_dialog: false
         }
     },
 
@@ -124,8 +126,9 @@ export default {
         },
 
         async deleteOrder(){
+            this.loading_dialog = true;
+
             let order = this.selected_product
-            
             await storeDb.collection("Vendors/ZNtVs6nMyeMn2CbEdy6vB1riZ4s1/products").doc(order.id.toString()).delete()
             for (let i = 0; i < this.inventory.length; i++) {
                 let product = this.inventory[i];
@@ -134,7 +137,8 @@ export default {
                     break;
                 }    
             }
-
+            
+            this.loading_dialog  = false;
             this.confirm_deletion_dialog = false
         },
 

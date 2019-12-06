@@ -21,7 +21,7 @@ export default {
                 {icon: "refresh", title: "Previous Orders"},
                 {icon: "fastfood", title: "Inventory"},
                 {icon: "notifications", title: "Notifications"},
-                {icon: "notifications", title: "Offers"},
+                {icon: "loop", title: "Offers"},
             ]
         }
     },

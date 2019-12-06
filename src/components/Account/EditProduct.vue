@@ -44,6 +44,10 @@
             </v-flex>
             <v-flex><v-textarea label="Description" v-model="edited_product.desc"></v-textarea></v-flex>
             <v-flex><v-btn @click="save()" dark block color="rgb(0, 133, 119)" class="capitalize bold">Save</v-btn></v-flex>
+
+            <v-flex v-show="false">
+                <loading :dialog="loading_dialog"></loading>
+            </v-flex>
         </v-layout>
     </v-card>
 </template>
@@ -52,10 +56,12 @@
 import firebase from "firebase"
 import { storeDb } from '../firebase/init'
 import UploadButton from "vuetify-upload-button";
+import Loading from "./Loading"
 
 export default {
     components: {
-        "upload-btn": UploadButton
+        "upload-btn": UploadButton,
+        "loading": Loading
     },
 
     props : ["product","dialog"],
@@ -66,7 +72,8 @@ export default {
             units: ["KG", "GM", "L","ML", "Pc"],
             catg_units: ["VEG","NONVEG"],
             image: null,
-            vendors: []
+            vendors: [],
+            loading_dialog:false
         }
     },
     
@@ -86,9 +93,11 @@ export default {
 
     methods: {
         async save(){
+            this.loading_dialog = true
             this.correctFields();
             await this.updateOnBackend();  
-            this.$emit("editProduct", this.edited_product)     
+            this.$emit("editProduct", this.edited_product)   
+            this.loading_dialog = false  
         },
 
         saveLogo(file){
@@ -96,6 +105,8 @@ export default {
         },
 
         async uploadImage(){
+            if (!this.image) return ;
+
             let file = this.image
             let logo_ref = firebase.storage().ref(`vendor_prouct_images/${this.edited_product.id}`);
             let snap = await logo_ref.put(file);
