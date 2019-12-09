@@ -59,17 +59,25 @@ export default {
       firebase.auth().onAuthStateChanged(async user => {
 
         if (user) {
+
           this.$store.commit("saveUid", user.uid);
+          this.loadResources()
           this.$router.push({ name: "Home" });
         } else {
           this.$router.push({ name: "SignUpOrLogin" });
         }
       });
     },
+
+    loadResources(){
+      console.log("asdsasd");
+      
+      this.$store.dispatch("loadConfirmedOrders")
+    }
   },
 
   created() {
-    
+    this.startUp()
   }
 };
 </script>

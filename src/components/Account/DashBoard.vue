@@ -20,7 +20,7 @@
         </v-flex>
         <v-flex class="mt-2">
             <v-layout  column>
-                <v-flex class="mt-2" shrink v-for="(order,i) in orders" :key="i">
+                <v-flex class="mt-2" shrink v-for="(order,i) in getOrders" :key="i">
                     <order-card :order="order" v-on:markOrder="markOrderAsOutForDelivery($event)"></order-card>
                 </v-flex>
             </v-layout>
@@ -41,6 +41,7 @@ export default {
     data(){
         return {
             orders: [],
+            
             order_details_dialog: false,
             selected_order: null,
             item_ids: {},
@@ -51,6 +52,12 @@ export default {
         }
     },
 
+    computed:{
+        getOrders(){
+            return this.$store.getters.getPendingOrders;
+        }
+    },
+
     methods:{
         getConfirmedOrders(){
             storeDb.collection("vendor_orders")
@@ -58,9 +65,9 @@ export default {
             .onSnapshot( querySnap => {
                 querySnap.forEach(doc=>{
                     let order = doc.data()
-                    console.log(order.status,order.id);
                     
                     if(!this.item_ids[order.id] && order.status == "confirmed"){
+                         this.audio.play();
                          this.item_ids[order.id] = 1;
                          this.orders.push(order)
                     }
@@ -71,18 +78,17 @@ export default {
             })
         },
 
-        markOrderAsOutForDelivery({order}){
-            this.orders = this.orders.filter(ordr=>{
-                if(ordr.id == order.id )return false
-                else return true
-            })
+        async markOrderAsOutForDelivery({order}){
+            await this.$store.dispatch("markOrderAsOutForDelivery",order)
+            this.sendNotificationToDriver(order)    
+        },
 
-            delete this.item_ids[order.id]
-
-            storeDb.collection("vendor_orders")
-            .doc(order.id.toString())
-            .update({"status": "out_for_delivery"})
-
+        sendNotificationToDriver(order){
+            let uid = 'x93e8m6Vy5d14O2meMJVnRObjPx2';
+            var sendNotf = firebase
+                            .functions()
+                            .httpsCallable("sendNotificationToDriver");
+            sendNotf({ uid, order });
         },
 
         showOrderDetails(order){
@@ -92,7 +98,7 @@ export default {
     },
 
     created(){
-        this.getConfirmedOrders()
+        // this.getConfirmedOrders()
     }
 }
 </script>
