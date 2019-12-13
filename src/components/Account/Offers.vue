@@ -48,12 +48,12 @@
         </v-flex>
         <!-- DIALOGS -->
         <v-flex v-show="false">
-            <v-dialog width="400" v-model="show_offers_dialog">
-                <create-offer @offerCreated="addOffer($event)"></create-offer>
+            <v-dialog persistent width="400" v-model="show_offers_dialog">
+                <create-offer @exit="show_offers_dialog=false" @offerCreated="addOffer($event)"></create-offer>
             </v-dialog>
 
-            <v-dialog width="400" v-model="edit_offer_dialog">
-                <edit-offer :Offer="selected_offer" @offerEdited="editOffer($event)"></edit-offer>
+            <v-dialog persistent width="400" v-model="edit_offer_dialog">
+                <edit-offer @exit="edit_offer_dialog=false" :Offer="selected_offer" @offerEdited="editOffer($event)"></edit-offer>
             </v-dialog>
         </v-flex>
     </v-layout>

@@ -1,6 +1,7 @@
 <template>
     <v-card class="pa-4 card">
         <v-layout column>
+            <v-flex class="text-xs-right"><v-icon @click="exit()" class="pointer">cancel</v-icon></v-flex>
             <v-flex>
                  <v-flex shrink><v-switch v-model="offer.active" color="rgb(0, 133, 119)"></v-switch></v-flex>
             </v-flex>
@@ -106,6 +107,11 @@ export default {
 
         saveLogo(file){
             this.image = file
+        },
+
+        exit(){
+            this.resetData()
+            this.$emit("exit")
         },
 
         resetData(){

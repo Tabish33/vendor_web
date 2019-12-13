@@ -1,7 +1,11 @@
 <template>
     <v-card  class="pa-4 card">
         <v-layout column>
-            <v-flex shrink class="x_large bold mt-4">Add Product</v-flex>
+            <v-layout>
+                <v-flex shrink class="x_large bold mt-4">Add Product</v-flex>
+                <v-spacer></v-spacer>
+                <v-flex shrink @click="exit()" ><v-icon class="pointer">cancel</v-icon></v-flex>
+            </v-layout>
             <hr class="mt-3 mb-2">
 
             <v-flex><v-text-field label="Name" v-model="new_product.name"></v-text-field></v-flex>
@@ -95,6 +99,11 @@ export default {
             await this.saveOnBackend();  
             this.$emit("addProduct", this.deepCopy(this.new_product)) 
             this.resetData() 
+        },
+
+        exit(){
+            this.resetData();
+            this.$emit("exit")
         },
 
         resetData(){

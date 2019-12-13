@@ -1,6 +1,7 @@
 <template>
     <v-card class="pa-4 card">
         <v-layout column>
+            <v-flex class="text-xs-right"><v-icon @click="exit()" class="pointer">cancel</v-icon></v-flex>
             <v-flex>
                  <v-flex shrink><v-switch v-model="offer.active" color="rgb(0, 133, 119)"></v-switch></v-flex>
             </v-flex>
@@ -98,6 +99,11 @@ export default {
             let ref = `vendor_offers/${this.offer.id}`;
             let url = await this.$store.dispatch("uploadImage",{ref,file});
             this.offer.image_url = url;
+        },
+        
+        exit(){
+            this.resetData();
+            this.$emit("exit");
         },
 
         resetData(){

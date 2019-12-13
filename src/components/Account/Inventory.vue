@@ -46,12 +46,12 @@
         </v-flex>
         <!-- DIALOGS -->
         <v-flex v-show="false">
-            <v-dialog width="400" v-model="edit_product_dialog">
-                <edit-product :product="selected_product" :dialog="edit_product_dialog" v-on:editProduct="editProduct($event)"></edit-product>
+            <v-dialog persistent width="400" v-model="edit_product_dialog">
+                <edit-product v-on:exit="edit_product_dialog =false" :product="selected_product" :dialog="edit_product_dialog" v-on:editProduct="editProduct($event)"></edit-product>
             </v-dialog>
 
-            <v-dialog width="400" v-model="add_product_dialog">
-                <add-product v-on:addProduct="addProduct($event)" ></add-product>
+            <v-dialog persistent width="400" v-model="add_product_dialog">
+                <add-product v-on:exit="add_product_dialog=false"  v-on:addProduct="addProduct($event)" ></add-product>
             </v-dialog>
 
             <v-dialog v-model="confirm_deletion_dialog" width="400">
