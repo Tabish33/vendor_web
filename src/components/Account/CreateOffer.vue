@@ -67,10 +67,9 @@ export default {
 
             for (let i = 0; i < this.items.length; i++) {
                 const item = this.items[i];
-                await storeDb.collection(`${ref}/${id}/items`).doc(item.id.toString()).set(item)
+                await this.$store.dispatch("addToDb",{"ref":`${ref}/${id}/items`, "id":item.id.toString(), "data": item })
             }
-
-            await storeDb.collection(ref).doc(id.toString()).set(this.offer)
+            await this.$store.dispatch("addToDb",{ref,"id":id.toString(),"data": this.offer})
             
             let offer = {}
             offer.details  = this.offer;
@@ -96,9 +95,9 @@ export default {
         
         async uploadImage(){
             let file = this.image
-            let logo_ref = firebase.storage().ref(`vendor_offers/${this.offer.id}`);
-            let snap = await logo_ref.put(file);
-            this.offer.image_url = await snap.ref.getDownloadURL()
+            let ref = `vendor_offers/${this.offer.id}`;
+            let url = await this.$store.dispatch("uploadImage",{ref,file});
+            this.offer.image_url = url;
         },
 
         resetData(){

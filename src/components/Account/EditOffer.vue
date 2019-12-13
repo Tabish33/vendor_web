@@ -17,8 +17,12 @@
                 <v-autocomplete item-text="name" multiple :items="products" return-object label="Items" v-model="items"></v-autocomplete>
             </v-flex>
             <v-flex>
-                <v-btn @click="createOffer()" block dark color="rgb(0, 133, 119)" class="capitalize bold">
-                    Create Offer
+                <img width="350px" :src="offer.image_url" />
+                <upload-btn block outline @file-update="saveLogo" label="Choose Image">Choose Image</upload-btn>
+            </v-flex>
+            <v-flex>
+                <v-btn @click="updateOffer()" block dark color="rgb(0, 133, 119)" class="capitalize bold">
+                    Edit Offer
                 </v-btn>
             </v-flex>
 
@@ -34,11 +38,13 @@ import firebase from "firebase"
 import { storeDb } from '../firebase/init'
 import moment from "moment"
 import Loading from "./Loading"
+import UploadButton from "vuetify-upload-button";
 export default {
     props: ["Offer"],
 
     components: {
-        "loading": Loading
+        "loading": Loading,
+        "upload-btn": UploadButton,
     },
 
     data(){
@@ -46,28 +52,38 @@ export default {
             offer: {},
             items: [],
             products: [],
-            loading_dialog: false
+            loading_dialog: false,
+            image:null
         }
     },
 
     methods: {
-        async createOffer(){
+        async updateOffer(){
             this.loading_dialog = true
-
+            await this.uploadImage()
             let offer_id = this.offer.id
             let ref = `offers`
 
             for (let i = 0; i < this.items.length; i++) {
                 const item = this.items[i];
-                await storeDb.collection(`${ref}/${offer_id}/items`).doc(item.id.toString()).set(item)
+                await this.$store.dispatch("addToDb", {"id":item.id.toString(), "ref":`${ref}/${offer_id}/items`, "data": item })
             }
-            await storeDb.collection(ref).doc(offer_id.toString()).set(this.offer)
+            await this.$store.dispatch("updateOnDb",{"id":offer_id.toString(),ref,"data":this.offer});
             await this.removeDeletedItems(offer_id)
 
             this.$emit("offerEdited",{items: this.items, details: this.offer})
             this.resetData()
             
             this.loading_dialog = false    
+        },
+
+        async uploadImage(){
+            if (!this.image) return;
+            
+            let file = this.image
+            let ref = `vendor_offers/${this.offer.id}`;
+            let url = await this.$store.dispatch("uploadImage",{ref,file});
+            this.offer.image_url = url;
         },
 
         async removeDeletedItems(offer_id){
@@ -81,9 +97,15 @@ export default {
                     if (item.id == original_item.id ) found = true        
                 } 
                 if(!found){
-                    await storeDb.collection(`offers/${offer_id}/items`).doc(original_item.id.toString()).delete()
+                    let ref =`offers/${offer_id}/items`;
+                    let id = original_item.id.toString()
+                    await this.$store.dispatch("deleteFromDb",{id,ref})
                 }
             }
+        },
+
+        saveLogo(file){
+            this.image = file
         },
 
         resetData(){

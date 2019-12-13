@@ -129,7 +129,8 @@ export default {
             this.loading_dialog = true;
 
             let order = this.selected_product
-            await storeDb.collection("Vendors/ZNtVs6nMyeMn2CbEdy6vB1riZ4s1/products").doc(order.id.toString()).delete()
+            let ref = "Vendors/ZNtVs6nMyeMn2CbEdy6vB1riZ4s1/products";
+            await this.$store.dispatch("deleteFromDb",{ref, "id":order.id.toString()})
             for (let i = 0; i < this.inventory.length; i++) {
                 let product = this.inventory[i];
                 if (product.id == order.id) {

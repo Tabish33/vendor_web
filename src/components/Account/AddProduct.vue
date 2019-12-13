@@ -124,24 +124,24 @@ export default {
             this.loading_dialog = true
 
             await this.uploadImage()
-            console.log(this.new_product);
-            
             let uid = await firebase.auth().currentUser.uid;
             
             let rello_ref = `Vendors/${uid}/products`
-            await storeDb.collection(rello_ref).doc(this.new_product.id.toString()).set(this.new_product)
+            let id = this.new_product.id.toString();
+            let data = this.new_product;
+            this.$store.dispatch("addToDb",{"ref":rello_ref, id, data })
 
             let vendor_ref = `Vendors/${this.new_product.vendor.uid}/products`
-            await storeDb.collection(vendor_ref).doc(this.new_product.id.toString()).set(this.new_product)
+            this.$store.dispatch("addToDb",{"ref":vendor_ref, id, data})
 
             this.loading_dialog = false
         },
 
-        async uploadImage(){
+        async uploadImage(){   
             let file = this.image
-            let logo_ref = firebase.storage().ref(`vendor_prouct_images/${this.new_product.id}`);
-            let snap = await logo_ref.put(file);
-            this.new_product.image_url = await snap.ref.getDownloadURL()
+            let ref = `vendor_prouct_images/${this.new_product.id}`;
+            let url = await this.$store.dispatch("uploadImage",{ref,file});
+            this.new_product.image_url = url;
         },
 
         async getVendors(){

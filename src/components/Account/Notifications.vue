@@ -172,10 +172,9 @@ export default {
       async uploadImage(){
             let file = this.image
             let id = moment().valueOf()
-            let logo_ref = firebase.storage().ref(`best_vendor_deals/${id}`);
-            let snap = await logo_ref.put(file);
-            let image_url = await snap.ref.getDownloadURL()
-            this.notf.image = image_url;
+            let ref = `best_vendor_deals/${id}`;
+            let url = await this.$store.dispatch("uploadImage",{ref,file});
+            this.notf.image = url;
         },
 
       async sendNotification(){

@@ -4,6 +4,7 @@ Vue.use(Vuex);
 import { storeDb} from '../components/firebase/init'
 import router from ".././router";
 import firebase_helper from "./modules/firebase";
+import firebase from "firebase"
 import moment from "moment"
 
 export const store = new Vuex.Store({
@@ -84,5 +85,24 @@ export const store = new Vuex.Store({
         })
     
     },
+
+    async deleteFromDb({state},{id, ref}){
+      await storeDb.collection(ref).doc(id).delete();
+    },
+
+    async addToDb({state},{id,ref,data}){
+      await storeDb.collection(ref).doc(id).set(data);
+    },
+
+    async updateOnDb({ state }, { id, ref, data }) {
+      await storeDb.collection(ref).doc(id).update(data);
+    },
+
+    async uploadImage({state},{ref,file}){
+      let image_ref = firebase.storage().ref(ref);
+      let snap = await image_ref.put(file);
+      let image_url = await snap.ref.getDownloadURL();
+      return image_url;
+    }
   }
 })

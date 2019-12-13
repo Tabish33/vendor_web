@@ -108,9 +108,9 @@ export default {
             if (!this.image) return ;
 
             let file = this.image
-            let logo_ref = firebase.storage().ref(`vendor_prouct_images/${this.edited_product.id}`);
-            let snap = await logo_ref.put(file);
-            this.edited_product.image_url = await snap.ref.getDownloadURL()
+            let ref = `vendor_prouct_images/${this.edited_product.id}`;
+            let url = await this.$store.dispatch("uploadImage",{ref,file});
+            this.edited_product.image_url = url;
         },
 
 
@@ -127,8 +127,8 @@ export default {
             await this.uploadImage();
             let uid = await firebase.auth().currentUser.uid;
             let ref = `Vendors/${uid}/products`
-            await storeDb.collection(ref).doc(this.edited_product.id.toString())
-            .update(this.edited_product)
+            let id = his.edited_product.id.toString()
+            await this.$store.dispatch("updateOnDb", {id, ref, "data": this.edited_product })
         },
 
         async getVendors(){
