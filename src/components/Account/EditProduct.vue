@@ -135,7 +135,7 @@ export default {
             await this.uploadImage();
             let uid = await firebase.auth().currentUser.uid;
             let ref = `Vendors/${uid}/products`
-            let id = his.edited_product.id.toString()
+            let id = this.edited_product.id.toString()
             await this.$store.dispatch("updateOnDb", {id, ref, "data": this.edited_product })
         },
 

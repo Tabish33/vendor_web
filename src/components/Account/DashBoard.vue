@@ -81,6 +81,7 @@ export default {
         async markOrderAsOutForDelivery({order}){
             await this.$store.dispatch("markOrderAsOutForDelivery",order)
             this.sendNotificationToDriver(order)    
+            this.sendOutForDeliveryNotification(order)
         },
 
         sendNotificationToDriver(order){
@@ -89,6 +90,15 @@ export default {
                             .functions()
                             .httpsCallable("sendNotificationToDriver");
             sendNotf({ uid, order });
+        },
+
+        sendOutForDeliveryNotification(order){
+            let uid = order.res_id;
+            let branch = order.res_branch;
+            var sendNotf = firebase
+                            .functions()
+                            .httpsCallable("sendOutForDeliveryNotification");
+            sendNotf({ uid, order, branch });
         },
 
         showOrderDetails(order){

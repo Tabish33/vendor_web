@@ -21,7 +21,7 @@
         <v-flex class="mt-2">
             <v-layout  column>
                 <v-flex class="mt-2" shrink v-for="(order,i) in orders" :key="i">
-                    <order-card :order="order"></order-card>
+                    <order-card @changePaymentStatus="changePaymentStatus($event)" :order="order"></order-card>
                 </v-flex>
             </v-layout>
         </v-flex>
@@ -62,6 +62,21 @@ export default {
                 this.orders.push(order);
             })
         },
+
+       async changePaymentStatus({order}){
+           console.log(order);
+           
+           let order_id = order.id.toString() ;
+           let current_status = order.paid; 
+           await storeDb.collection("vendor_orders").doc(order_id).update({"paid":!current_status})
+
+           this.orders = this.orders.map(order=>{
+               if (order.id == order_id) {
+                   order.paid = !order.paid;
+               }
+               return order
+           })
+       }
 
     },
 
