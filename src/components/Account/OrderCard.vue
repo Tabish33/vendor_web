@@ -36,6 +36,11 @@
                             <v-icon class="mr-2">attach_money</v-icon>Update
                         </v-btn>
                     </v-flex>
+                    <v-flex class="ml-2" shrink>
+                        <v-btn @click="showReminderDialog(order)" dark class="capitalize bold" color="rgb(0, 133, 119)">
+                            <v-icon class="mr-2">notifications</v-icon>Remind
+                        </v-btn>
+                    </v-flex>
                 </v-layout>   
             </v-flex>
         </v-layout>
@@ -44,12 +49,31 @@
             <v-dialog v-model="confirm_dialog" width="400">
                 <confirm-dialog :data="dialog_data" @answer="answer($event)"></confirm-dialog>
             </v-dialog>
+
+            <v-dialog width="400" v-model="reminder_dialog">
+                <v-card class="pa-4">
+                    <v-layout column>
+                        <v-flex>
+                            <v-text-field label="Title" v-model="notf.title"></v-text-field>
+                        </v-flex>
+                        <v-flex>
+                            <v-text-field label="Subtitle" v-model="notf.subtitle"></v-text-field>
+                        </v-flex>
+                        <v-flex>
+                            <v-btn @click="sendNotification()" dark block color="rgb(0, 133, 119)" class="capitalize bold" >
+                                Send Notification
+                            </v-btn>
+                        </v-flex>
+                    </v-layout>
+                </v-card>
+            </v-dialog>
         </v-flex>
     </v-card>
 </template>
 
 <script>
 import ConfirmationDialog from "./ConfirmationDialog"
+import firebase from "firebase"
 import { storeDb } from '../firebase/init';
 export default {
     props: ["order"],
@@ -62,7 +86,9 @@ export default {
         return{
             confirm_dialog: false,
             selected_order: null,
-            dialog_data: null
+            dialog_data: null,
+            reminder_dialog: false,
+            notf: {}
         }
     },
 
@@ -84,6 +110,28 @@ export default {
             let body = `Are you sure you want to mark this order as ${status} ?`
             this.setDialogData({title,icon,body})
             this.confirm_dialog = true
+        },
+
+        showReminderDialog(order){
+            this.selected_order = order;
+            this.reminder_dialog = true;
+        },
+
+        async sendNotification(){
+           let uid  = this.selected_order.res_id
+           let branch = this.selected_order.res_branch 
+           let notf= this.notf
+
+           var sendPaymentReminderNotification = firebase
+            .functions()
+            .httpsCallable("sendPaymentReminderNotification");
+
+           await sendPaymentReminderNotification({ uid, branch, notf });
+           this.reminder_dialog = false
+        },
+
+        resetNotificationData(){
+            this.notf = {}
         },
         
         setDialogData({title,icon,body}){
