@@ -83,6 +83,8 @@ export default {
 
         sendOfferNotification(){
             let offer = this.deepCopy(this.offer)
+            if(!offer.active) return;
+
             var sendOfferNotification = firebase
             .functions()
             .httpsCallable("sendOfferNotification");
@@ -95,6 +97,8 @@ export default {
         },
         
         async uploadImage(){
+            if (!this.image) return 
+
             let file = this.image
             let ref = `vendor_offers/${this.offer.id}`;
             let url = await this.$store.dispatch("uploadImage",{ref,file});
@@ -108,6 +112,7 @@ export default {
 
         resetData(){
             this.offer = { offer_type: "vendor"}
+            this.image  = null
             this.items = []
         },
 

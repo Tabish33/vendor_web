@@ -30,6 +30,7 @@
                                     <v-flex shrink>
                                         <v-icon color="rgb(0, 133, 119)" @click="showEditOfferDialog(offer,i)">edit</v-icon>
                                     </v-flex>
+                                    <v-flex @click="showDeleteOfferDialog(offer)" class="pointer" shrink><v-icon color="warning">delete</v-icon></v-flex>
                                 </v-layout>
                             </v-flex>
                             <v-flex class="bold">{{offer.details.subtitle}}</v-flex>
@@ -55,6 +56,12 @@
             <v-dialog persistent width="400" v-model="edit_offer_dialog">
                 <edit-offer @exit="edit_offer_dialog=false" :Offer="selected_offer" @offerEdited="editOffer($event)"></edit-offer>
             </v-dialog>
+
+            <v-dialog v-model="confirm_dialog" width="400">
+                <confirm-dialog :data="dialog_data" @answer="answer($event)"></confirm-dialog>
+            </v-dialog>
+
+            <loading :dialog="loading_dialog"></loading>
         </v-flex>
     </v-layout>
 </template>
@@ -62,12 +69,16 @@
 <script>
 import firebase from "firebase"
 import { storeDb } from '../firebase/init'
+import Loading from "./Loading"
+import ConfirmationDialog from "./ConfirmationDialog"
 const CreateOffer = () => import("./CreateOffer")
 const EditOffer = () => import("./EditOffer")
 export default {
     components: {
         "create-offer": CreateOffer,
-        "edit-offer": EditOffer
+        "edit-offer": EditOffer,
+        "confirm-dialog": ConfirmationDialog,
+        "loading": Loading,
     },
 
     data(){
@@ -76,7 +87,11 @@ export default {
             show_offers_dialog: false,
             edit_offer_dialog: false,
             selected_offer: null,
-            selected_offer_index: null
+            selected_offer_index: null,
+            dialog_data: null,
+            confirm_dialog: false,
+            selected_offer: null,
+            loading_dialog: false,
         }
     },
 
@@ -109,10 +124,41 @@ export default {
             }
         },
 
+        showDeleteOfferDialog(offer){
+            this.selected_offer = offer
+
+            this.dialog_data = {}
+            this.dialog_data.title = "Delete Offer";
+            this.dialog_data.icon = "delete";
+            this.dialog_data.body = `Are you sure you want to delete this offer?`
+            
+            this.confirm_dialog = true
+        },
+
         showEditOfferDialog(offer,index){
             this.selected_offer= offer
             this.selected_offer_index = index
             this.edit_offer_dialog = true
+        },
+
+        async answer(answer){            
+             let offer_id = this.selected_offer.details.id.toString()
+            if (answer) {
+                this.loading_dialog = true
+
+                this.selected_offer.items.forEach(item => {
+                    storeDb.collection(`offers/${offer_id}/items`).doc(item.id.toString()).delete()
+                })
+                await storeDb.collection("offers").doc(offer_id).delete();
+            }   
+            this.confirm_dialog = false
+
+            this.offers = this.offers.filter(offer=>{
+                if(offer.details.id == offer_id ) return false
+                return true
+            })
+
+            this.loading_dialog = false
         },
 
         editOffer(offer){

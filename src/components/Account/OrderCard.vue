@@ -67,19 +67,24 @@
                     </v-layout>
                 </v-card>
             </v-dialog>
+
+            <loading :dialog="loading_dialog"></loading>
+
         </v-flex>
     </v-card>
 </template>
 
 <script>
 import ConfirmationDialog from "./ConfirmationDialog"
+import Loading from "./Loading"
 import firebase from "firebase"
 import { storeDb } from '../firebase/init';
 export default {
     props: ["order"],
     
     components:{
-        "confirm-dialog": ConfirmationDialog
+        "confirm-dialog": ConfirmationDialog,
+        "loading": Loading,
     },
 
     data(){
@@ -88,6 +93,7 @@ export default {
             selected_order: null,
             dialog_data: null,
             reminder_dialog: false,
+            loading_dialog: false,
             notf: {}
         }
     },
@@ -118,6 +124,8 @@ export default {
         },
 
         async sendNotification(){
+            this.loading_dialog = true
+
            let uid  = this.selected_order.res_id
            let branch = this.selected_order.res_branch 
            let notf= this.notf
@@ -127,7 +135,10 @@ export default {
             .httpsCallable("sendPaymentReminderNotification");
 
            await sendPaymentReminderNotification({ uid, branch, notf });
+           
+           this.loading_dialog = false
            this.reminder_dialog = false
+
         },
 
         resetNotificationData(){

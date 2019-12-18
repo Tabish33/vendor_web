@@ -25,6 +25,10 @@
                 </v-flex>
             </v-layout>
         </v-flex>
+
+        <v-flex v-show="false">
+            <loading :dialog="loading_dialog"></loading>
+        </v-flex>
     </v-layout>
 </template>
 
@@ -33,10 +37,12 @@ import firebase from "firebase"
 import { storeDb } from '../firebase/init'
 import OrderCard from "./OrderCard"
 import {bus} from "../../main"
+import Loading from "./Loading"
 
 export default {
     components: {
-        "order-card": OrderCard
+        "order-card": OrderCard,
+        "loading": Loading,
     },
 
     data(){
@@ -44,10 +50,7 @@ export default {
             orders: [],
             order_details_dialog: false,
             selected_order: null,
-            image_1: require("@/assets/item_1.png"),
-            image_2: require("@/assets/item_2.png"),
-            image_3: require("@/assets/item_3.png"),
-            image_4: require("@/assets/item_4.png"),
+            loading_dialog: false,
         }
     },
 
@@ -64,7 +67,7 @@ export default {
         },
 
        async changePaymentStatus({order}){
-           console.log(order);
+           this.loading_dialog = true
            
            let order_id = order.id.toString() ;
            let current_status = order.paid; 
@@ -76,6 +79,8 @@ export default {
                }
                return order
            })
+
+           this.loading_dialog  = false
        }
 
     },
