@@ -13,7 +13,7 @@
     "firebase-functions": "^2.1.0",
     "json2csv": "^4.5.1",
     "moment": "^2.24.0",
-    "moment-timezone": "^0.5.26",
+    "moment-timezone": "^0.5.35",
     "nodemailer": "^5.1.1",
     "razorpay": "^2.0.5"
   },
